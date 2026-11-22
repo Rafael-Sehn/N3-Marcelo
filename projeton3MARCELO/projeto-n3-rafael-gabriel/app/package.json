@@ -1,0 +1,15 @@
+{
+  "name": "loja-api-rafael-gabriel",
+  "version": "1.0.0",
+  "description": "API de produtos Node.js com MySQL e Redis - Rafael Gabriel",
+  "author": "Rafael Gabriel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "mysql2": "^3.11.5",
+    "redis": "^4.7.0"
+  }
+}

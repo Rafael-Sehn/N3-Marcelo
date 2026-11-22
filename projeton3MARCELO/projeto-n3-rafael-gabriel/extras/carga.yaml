@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gerador-carga-api
+  namespace: n3-rafael
+spec:
+  completions: 1
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: gerador-carga
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              end=$((SECONDS+120))
+              while [ $SECONDS -lt $end ]; do
+                wget -qO- http://loja-api:3000/produtos > /dev/null || true
+              done

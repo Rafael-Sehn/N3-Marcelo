@@ -1,0 +1,63 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: rafael-loja-mysql
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-loja_db}
+      MYSQL_USER: ${DB_USER:-rafael_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-troque_esta_senha_mysql}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-troque_esta_senha_root}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - loja-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: rafael-loja-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - loja-net
+
+  api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: rafael-loja-api
+    environment:
+      PORT: ${PORT:-3000}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-loja_db}
+      DB_USER: ${DB_USER:-rafael_user}
+      DB_PASSWORD: ${DB_PASSWORD:-troque_esta_senha_mysql}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - loja-net
+
+volumes:
+  mysql_data:
+
+networks:
+  loja-net:
